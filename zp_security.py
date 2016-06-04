@@ -55,3 +55,20 @@ def sha256(mdp):
     #utilisation du module hashlib pour générer la valeur hashé du mdp
     hash_output = hashlib.sha256(mdp.encode('utf-8')).hexdigest()
     return hash_output
+
+def sha512(mdp):
+    """Fonction renvoyant une chaîne de caractère comportant la valeur de hachage SHA-512 de la chaîne en entrée"""
+
+    #utilisation du module hashlib pour générer la valeur hashé du mdp
+    hash_output = hashlib.sha512(mdp.encode('utf-8')).hexdigest()
+    return hash_output
+
+def generateKey(mdp):
+    key = sha512(mdp)
+    del mdp
+    i = 0
+    while i < 128:
+        key = sha512(key)
+        print(key)
+        i += 1
+    return key
