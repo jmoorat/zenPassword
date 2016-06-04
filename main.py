@@ -48,6 +48,7 @@ class gui:
         #Elements de la fenêtre
         self.fenUnlock = Toplevel()
         self.fenUnlock.title("Déverrouillage")
+        self.fenUnlock.geometry("300x128")
         cadenas = PhotoImage(file="img/cadenas_64.png")
         labelCadenas = Label(self.fenUnlock, image=cadenas)
         mdp = StringVar()
