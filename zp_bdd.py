@@ -51,8 +51,6 @@ class bddFile:
         prepareSuppr = [(zps.chiffre(nomEntree, cle))]
         self.cur.execute("DELETE FROM boite WHERE nom = ?", prepareSuppr)
         self.connect.commit() #on écrit les changements dans la bdd
-        application.listeNom.delete(listeNom.curselection()) #A transferer dans main si nécessaire !
-        application.fenBoite.focus_set() #A transferer dans main si nécessaire !
         return True
 
     def getId(self, nomEntree, cle):

@@ -1,10 +1,12 @@
+#coding : utf-8
 from tkinter import *
 from tkinter.messagebox import *
 from tkinter.filedialog import *
+import os
 from zp_bdd import *
 from zp_security import *
 
-version = "v0.1"
+version = "v0.2"
 
 class gui:
     def __init__(self):
@@ -12,21 +14,21 @@ class gui:
         self.main.title("ZenPassword "+version)
         self.main['bg']="white"
 
-        self.menu = Menu(self.main)
-        self.menu.add_command(label="Créer", command=self.fenCreationBoite)
-        self.menu.add_command(label="Ouvrir", command=self.browse)
-        self.main.config(menu=self.menu)
+        menu = Menu(self.main)
+        menu.add_command(label="Créer", command=self.fenCreationBoite)
+        menu.add_command(label="Ouvrir", command=self.browse)
+        self.main.config(menu=menu)
 
-        self.buttonCreer = Button(self.main, text="Créer une boîte", command=self.fenCreationBoite)
-        self.buttonOuvrir = Button(self.main, text="Ouvrir une boîte", command=self.browse)
+        buttonCreer = Button(self.main, text="Créer une boîte", command=self.fenCreationBoite)
+        buttonOuvrir = Button(self.main, text="Ouvrir une boîte", command=self.browse)
 
-        self.logo = PhotoImage(file="img/logo_96.png")
-        self.labelLogo = Label(self.main, image=self.logo, bg="white")
-        self.labelVersion = Label(self.main, text="ZenPassword "+version+"\nby Julien Moorat", bg="white")
-        self.labelLogo.pack()
-        self.buttonCreer.pack(pady=8)
-        self.buttonOuvrir.pack(pady=8)
-        self.labelVersion.pack(side=BOTTOM, pady=8)
+        logo = PhotoImage(file="img/logo_96.png")
+        labelLogo = Label(self.main, image=logo, bg="white")
+        labelVersion = Label(self.main, text="ZenPassword "+version+"\nby Julien Moorat", bg="white")
+        labelLogo.pack()
+        buttonCreer.pack(pady=8)
+        buttonOuvrir.pack(pady=8)
+        labelVersion.pack(side=BOTTOM, pady=8)
 
         self.main.mainloop()
 
@@ -41,24 +43,24 @@ class gui:
 
     def unlock(self, chemin):
         """Fenêtre d'authentification (demande du mot de passe de la boîte)"""
-        self.fichier = bddFile(chemin)
+        self.fichier = bddFile(chemin) #On initialise notre le fichier
 
         #Elements de la fenêtre
         self.fenUnlock = Toplevel()
         self.fenUnlock.title("Déverrouillage")
-        self.cadenas = PhotoImage(file="img/cadenas_64.png")
-        self.labelCadenas = Label(self.fenUnlock, image=self.cadenas)
+        cadenas = PhotoImage(file="img/cadenas_64.png")
+        labelCadenas = Label(self.fenUnlock, image=cadenas)
         mdp = StringVar()
-        self.labelMdp = Label(self.fenUnlock, text="Mot de passe")
-        self.champMdp = Entry(self.fenUnlock, textvariable=mdp, show="●") #show="●" va permettre de masquer ce qu'écrit l'utilisateur
-        self.champMdp.focus_set()
-        self.buttonValider = Button(self.fenUnlock, text="Valider", command=lambda:self.verifMdp(mdp.get()))
+        labelMdp = Label(self.fenUnlock, text="Mot de passe")
+        champMdp = Entry(self.fenUnlock, textvariable=mdp, show="●") #show="●" va permettre de masquer ce qu'écrit l'utilisateur
+        champMdp.focus_set()
+        buttonValider = Button(self.fenUnlock, text="Valider", command=lambda:self.verifMdp(mdp.get()))
 
         #Positionnement des éléments de la fenêtre
-        self.labelCadenas.pack()
-        self.labelMdp.pack(side=LEFT, padx=5, pady=5)
-        self.champMdp.pack(side=LEFT, padx=5, pady=5)
-        self.buttonValider.pack(side=LEFT, padx=5, pady=5)
+        labelCadenas.pack()
+        labelMdp.pack(side=LEFT, padx=5, pady=5)
+        champMdp.pack(side=LEFT, padx=5, pady=5)
+        buttonValider.pack(side=LEFT, padx=5, pady=5)
 
         self.fenUnlock.mainloop()
         return
@@ -68,7 +70,7 @@ class gui:
         SHA-256"""
 
         #On vérifie que la valeur hashée du mot de passe correspond à celle stockée en base de données
-        if zps.sha256(mdp) == self.fichier.getHash(): #Correspondance -> on ouvre la boite
+        if sha256(mdp) == self.fichier.getHash(): #Correspondance -> on ouvre la boite
             self.cle = mdp
             mdp = None
             del mdp
@@ -88,28 +90,35 @@ class gui:
         nomBoite = StringVar()
         mdpBoite = StringVar()
         cheminBoite = StringVar()
-        self.labelNom = Label(self.fenCreationBoite, text="Nom de la boîte : ")
-        self.labelMdp = Label(self.fenCreationBoite, text="Mot de passe principal : ")
-        self.entryNom = Entry(self.fenCreationBoite, textvariable=nomBoite)
-        self.entryMdp = Entry(self.fenCreationBoite, textvariable=mdpBoite, show="●")
-        self.buttonChemin = Button(self.fenCreationBoite, text="Choisir un répertoire", command=lambda:cheminBoite.set(askdirectory()))
-        self.buttonValider = Button(self.fenCreationBoite, text="Valider", command=lambda:self.verifCreationBoite(nomBoite.get(), mdpBoite.get(), cheminBoite.get()))
-        self.buttonQuitter = Button(self.fenCreationBoite, text="Quitter", command=self.fenCreationBoite.destroy)
+        labelNom = Label(self.fenCreationBoite, text="Nom de la boîte : ")
+        labelMdp = Label(self.fenCreationBoite, text="Mot de passe principal : ")
+        labelChemin = Label(self.fenCreationBoite, text="Chemin vers le fichier : ")
+        entryNom = Entry(self.fenCreationBoite, textvariable=nomBoite)
+        entryMdp = Entry(self.fenCreationBoite, textvariable=mdpBoite, show="●")
+        entryChemin = Entry(self.fenCreationBoite, textvariable=cheminBoite)
+        buttonChemin = Button(self.fenCreationBoite, text="Parcourir ...", command=lambda:cheminBoite.set(askdirectory()))
+        buttonValider = Button(self.fenCreationBoite, text="Valider", command=lambda:self.verifCreationBoite(nomBoite.get(), mdpBoite.get(), cheminBoite.get()))
+        buttonQuitter = Button(self.fenCreationBoite, text="Quitter", command=self.fenCreationBoite.destroy)
 
         #Positionnement des éléments
-        self.labelNom.pack(pady=1)
-        self.entryNom.pack(pady=2)
-        self.labelMdp.pack(pady=1)
-        self.entryMdp.pack(pady=2)
-        self.buttonChemin.pack(pady=2)
-        self.buttonValider.pack(side=LEFT, pady=5, padx=5)
-        self.buttonQuitter.pack(side=RIGHT, pady=5, padx=5)
+        labelNom.pack(pady=1)
+        entryNom.pack(pady=2)
+        labelMdp.pack(pady=1)
+        entryMdp.pack(pady=2)
+        labelChemin.pack(pady=1)
+        entryChemin.pack(pady=2)
+        buttonChemin.pack(pady=2)
+        buttonValider.pack(side=LEFT, pady=5, padx=5)
+        buttonQuitter.pack(side=RIGHT, pady=5, padx=5)
 
         self.fenCreationBoite.mainloop()
 
     def verifCreationBoite(self, nomBoite, mdpBoite, cheminBoite):
         """Fonction vérifiant les données rentrées dans fenCreationBoite avant création d'une boîte"""
-        if len(mdpBoite) < 8:
+        if nomBoite == "":
+            alerte = showwarning("Aucun nom spécifié", "Veuillez spécifier un nom pour votre fichier")
+            return
+        elif len(mdpBoite) < 8:
             alerte = showwarning("Mot de passe trop court", "Votre mot de passe doit faire plus de 8 caractères")
             return
         elif os.path.isfile(cheminBoite+"/"+nomBoite+".spdb") == True:
@@ -158,7 +167,7 @@ class gui:
         menuEntrees.add_command(label="Voir l'entrée sélectionnée", command=lambda:self.afficheEntree(self.listeNom.get(self.listeNom.curselection()[0])))
         menuEntrees.add_command(label="Ajouter une entrée", command=self.fenAjoutEntreeBoite)
         menuEntrees.add_command(label="Modifier une entrée", command=lambda:self.fenModifEntreeBoite(self.listeNom.get(self.listeNom.curselection()[0])))
-        menuEntrees.add_command(label="Supprimer l'entrée sélectionnée", command=lambda:self.supprimerEntreeBoite(self.listeNom.get(self.listeNom.curselection()[0])))
+        menuEntrees.add_command(label="Supprimer l'entrée sélectionnée", command=lambda:self.supprEntree(self.listeNom.get(self.listeNom.curselection()[0])))
         menuBoite.add_cascade(label="Entrées", menu=menuEntrees)
         menuBoite.add_command(label="Fermer la boîte", command=self.fermerBoite)
         self.fenBoite.config(menu=menuBoite)
@@ -265,6 +274,11 @@ class gui:
         labelGetMdp.pack()
         labelNote.pack()
         labelGetNote.pack()
+
+    def supprEntree(self, nomEntree):
+        self.fichier.supprimerEntreeBoite(nomEntree, self.cle)
+        self.listeNom.delete(self.listeNom.curselection())
+        self.fenBoite.focus_set()
 
     def fermerBoite(self):
         """Fonction permettant de fermer correctement une boîte en effaçant toutes
