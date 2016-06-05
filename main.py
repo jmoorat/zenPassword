@@ -101,27 +101,28 @@ class gui:
             return self.boite()
         else: #Erreur > on ouvre pas la boite
             self.alerte = showerror("Wrong password", "Access refused")
+            self.fenUnlock.focus()
             return
 
     def fenCreationBoite(self):
         """Fenêtre permettant la création d'une nouvelle boîte"""
 
         #Elements de la fenêtre
-        self.fenCreationBoite = Toplevel()
-        self.fenCreationBoite.title("Create a database")
-        self.fenCreationBoite.geometry("220x200")
+        self.fenCreation = Toplevel()
+        self.fenCreation.title("Create a database")
+        self.fenCreation.geometry("220x230")
         nomBoite = StringVar()
         mdpBoite = StringVar()
         cheminBoite = StringVar()
-        labelNom = Label(self.fenCreationBoite, text="Name : ")
-        labelMdp = Label(self.fenCreationBoite, text="Main password : ")
-        labelChemin = Label(self.fenCreationBoite, text="Path to your file : ")
-        entryNom = Entry(self.fenCreationBoite, textvariable=nomBoite)
-        entryMdp = Entry(self.fenCreationBoite, textvariable=mdpBoite, show="●")
-        entryChemin = Entry(self.fenCreationBoite, textvariable=cheminBoite)
-        buttonChemin = Button(self.fenCreationBoite, text="Explore", command=lambda:cheminBoite.set(askdirectory()))
-        buttonValider = Button(self.fenCreationBoite, text="Ok", command=lambda:self.verifCreationBoite(nomBoite.get(), mdpBoite.get(), cheminBoite.get()))
-        buttonQuitter = Button(self.fenCreationBoite, text="Quit", command=self.fenCreationBoite.destroy)
+        labelNom = Label(self.fenCreation, text="Name : ")
+        labelMdp = Label(self.fenCreation, text="Main password : ")
+        labelChemin = Label(self.fenCreation, text="Path to your file : ")
+        entryNom = Entry(self.fenCreation, textvariable=nomBoite)
+        entryMdp = Entry(self.fenCreation, textvariable=mdpBoite, show="●")
+        entryChemin = Entry(self.fenCreation, textvariable=cheminBoite)
+        buttonChemin = Button(self.fenCreation, text="Explore", command=lambda:cheminBoite.set(askdirectory()))
+        buttonValider = Button(self.fenCreation, text="Ok", command=lambda:self.verifCreationBoite(nomBoite.get(), mdpBoite.get(), cheminBoite.get()))
+        buttonQuitter = Button(self.fenCreation, text="Quit", command=self.fenCreation.destroy)
 
         #Positionnement des éléments
         labelNom.pack(pady=1)
@@ -139,16 +140,20 @@ class gui:
     def verifCreationBoite(self, nomBoite, mdpBoite, cheminBoite):
         """Fonction vérifiant les données rentrées dans fenCreationBoite avant création d'une boîte"""
         if nomBoite == "":
-            alerte = showwarning("No name specified", "Please set a name for your file")
+            showwarning("No name specified", "Please set a name for your file")
+            self.fenCreation.focus()
             return
         elif len(mdpBoite) < 8:
-            alerte = showwarning("Main password too short", "Your main password must be 8 characters long")
+            showwarning("Main password too short", "Your main password must be 8 characters long")
+            self.fenCreation.focus()
             return
         elif os.path.isfile(cheminBoite+"/"+nomBoite+".spdb") == True:
-            alerte = showerror("Error", "A file with the same name already exist !")
+            showerror("Error", "A file with the same name already exist !")
+            self.fenCreation.focus()
             return
         elif cheminBoite == "":
-            error = showerror("No path specified", "Please choose a path for your file")
+            showerror("No path specified", "Please choose a path for your file")
+            self.fenCreation.focus()
 
         else:
             question = askquestion("Confirmation", "Database \"" + nomBoite +
@@ -158,7 +163,7 @@ class gui:
                 fichier = bddFile(cheminBoite, True, nomBoite, zps.sha256(mdpBoite))
                 mdpBoite = None
                 del mdpBoite, nomBoite, cheminBoite, fichier
-                info = showinfo("Database created", "Operation successful")
+                showinfo("Database created", "Operation successful")
                 self.fenCreationBoite.destroy()
                 return
             else:
@@ -318,7 +323,7 @@ class gui:
         lenght.pack()
 
         var_lowerCase = IntVar()
-        var_lowerCase.set(2)
+        var_lowerCase.set(1)
         lowerCase = Checkbutton(self.fenGen, text="Lower case", variable=var_lowerCase)
         lowerCase.pack()
 
@@ -363,7 +368,10 @@ class gui:
         self.fenAjout.focus()
         return
     def generator(self, lowercase, uppercase, digits, special, space, lenght):
-        self.pass_generated.set(passgen.gen(lowercase, uppercase, digits, special, space, lenght))
+        if lowercase==0 and uppercase==0 and digits==0 and special==0 and space==0:
+            error = showerror("No parameter", "Please select at least 1 parameter to generate a password")
+        else:
+            self.pass_generated.set(passgen.gen(lowercase, uppercase, digits, special, space, lenght))
 
     def fermerBoite(self):
         """Fonction permettant de fermer correctement une boîte en effaçant toutes
@@ -371,6 +379,7 @@ class gui:
         del self.fichier
         del self.cle
         self.fenBoite.destroy()
+        self.main.focus()
         return
 
     def verifAjoutEntreeBoite(self, nom, identifiant, mdp, note):
@@ -379,13 +388,13 @@ class gui:
 
         if nom == "":
             error = showerror("Error", "Please specifiy a name for your entry")
-            self.fenBoite.focus_set() #garde la fenêtre boite au dessus des autres
+            self.fenAjout.focus() #garde la fenêtre boite au dessus des autres
             return
         elif self.fichier.ajouterEntreeBoite(nom, identifiant, mdp, note, self.cle) == True:
             self.listeNom.insert(END, nom) #*
             self.fenAjout.destroy()
             del self.fenAjout, nom, identifiant, mdp, note
-            self.fenBoite.focus_set() #garde la fenêtre boite au dessus des autres
+            self.fenBoite.focus() #garde la fenêtre boite au dessus des autres
             return
 
     def verifModifEntreeBoite(self, nom, identifiant, mdp, note):
@@ -395,7 +404,7 @@ class gui:
             info = showinfo("Entry changed", "Entry successfully changed")
             self.fenModif.destroy()
             del self.fenModif, nom, identifiant, mdp, note
-            self.fenBoite.focus_set() #garde la fenêtre boite au dessus des autres
+            self.fenModif.focus() #garde la fenêtre boite au dessus des autres
             return
 
 application = gui()
