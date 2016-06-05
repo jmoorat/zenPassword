@@ -3,10 +3,14 @@ from tkinter import *
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
-from zp_bdd import *
-from zp_security import *
 
-version = "v0.2"
+#Importation modules persos
+from zp.db import *
+from zp.security import *
+import zp.clipboard as clipboard
+import zp.generator as passgen
+
+version = "v0.3a"
 
 class gui:
     def __init__(self):
@@ -19,8 +23,26 @@ class gui:
         menu.add_command(label="Ouvrir", command=self.browse)
         self.main.config(menu=menu)
 
-        buttonCreer = Button(self.main, text="Créer une boîte", command=self.fenCreationBoite)
-        buttonOuvrir = Button(self.main, text="Ouvrir une boîte", command=self.browse)
+        buttonCreer = Button(
+            self.main,
+            text="Créer une boîte",
+            command=self.fenCreationBoite,
+            background="#60bb87",
+            foreground="white",
+            activebackground="#518c5e",
+            activeforeground="white",
+            relief=FLAT,
+            width="16")
+        buttonOuvrir = Button(
+            self.main,
+            text="Ouvrir une boîte",
+            command=self.browse,
+            background="#60bb87",
+            foreground="white",
+            activebackground="#518c5e",
+            activeforeground="white",
+            relief=FLAT,
+            width="16")
 
         logo = PhotoImage(file="img/logo_96.png")
         labelLogo = Label(self.main, image=logo, bg="white")
@@ -190,7 +212,7 @@ class gui:
         self.fenAjout.title("Ajouter une entrée")
         entreeNom = StringVar()
         entreeId = StringVar()
-        entreeMdp = StringVar()
+        self.entreeMdp = StringVar() #self pour accès depuis le générateur
         entreeNote = StringVar()
 
         labelNom = Label(self.fenAjout, text="Nom de l'entrée : ")
@@ -199,20 +221,22 @@ class gui:
         labelNote = Label(self.fenAjout, text="Note/Commentaire : ")
         entryNom = Entry(self.fenAjout, textvariable=entreeNom)
         entryId = Entry(self.fenAjout, textvariable=entreeId)
-        entryMdp = Entry(self.fenAjout, textvariable=entreeMdp)
+        entryMdp = Entry(self.fenAjout, textvariable=self.entreeMdp)
         entryNote = Entry(self.fenAjout, textvariable=entreeNote)
-        buttonValider = Button(self.fenAjout, text="Valider", command=lambda:self.verifAjoutEntreeBoite(entreeNom.get(), entreeId.get(), entreeMdp.get(), entreeNote.get()))
+        buttonValider = Button(self.fenAjout, text="Valider", command=lambda:self.verifAjoutEntreeBoite(entreeNom.get(), entreeId.get(), self.entreeMdp.get(), entreeNote.get()))
+        buttonGenerer = Button(self.fenAjout, text="Password generator", command=self.fenGenerator)
 
         #Positionnement des éléments
-        labelNom.pack(pady=1)
-        entryNom.pack(pady=1)
-        labelId.pack(pady=1)
-        entryId.pack(pady=1)
-        labelMdp.pack(pady=1)
-        entryMdp.pack(pady=1)
-        labelNote.pack(pady=1)
-        entryNote.pack(pady=1)
-        buttonValider.pack(pady=1)
+        labelNom.grid(row=1, column=1)
+        entryNom.grid(row=2, column=1)
+        labelId.grid(row=3, column=1)
+        entryId.grid(row=4, column=1)
+        labelMdp.grid(row=5, column=1)
+        entryMdp.grid(row=6, column=1)
+        labelNote.grid(row=7, column=1)
+        entryNote.grid(row=8, column=1)
+        buttonValider.grid(row=4, column=2)
+        buttonGenerer.grid(row=5, column=2)
 
         self.fenAjout.mainloop()
         return
@@ -241,14 +265,14 @@ class gui:
         buttonAnnuler = Button(self.fenModif, text="Annuler", command=self.fenModif.destroy)
 
         #Positionnement des éléments
-        labelId.pack(pady=1, padx=2)
-        entryId.pack(pady=1, padx=2)
-        labelMdp.pack(pady=1, padx=2)
-        entryMdp.pack(pady=1, padx=2)
-        labelNote.pack(pady=1, padx=2)
-        entryNote.pack(pady=1, padx=2)
-        buttonValider.pack(pady=1, padx=2)
-        buttonAnnuler.pack(pady=1, padx=2)
+        labelId.pack(side=LEFT, pady=1, padx=2)
+        entryId.pack(side=LEFT, pady=1, padx=2)
+        labelMdp.pack(side=LEFT, pady=1, padx=2)
+        entryMdp.pack(side=LEFT, pady=1, padx=2)
+        labelNote.pack(side=LEFT, pady=1, padx=2)
+        entryNote.pack(side=LEFT, pady=1, padx=2)
+        buttonValider.pack(side=RIGHT, pady=1, padx=2)
+        buttonAnnuler.pack(side=RIGHT, pady=1, padx=2)
 
         self.fenModif.mainloop()
         return
@@ -280,6 +304,67 @@ class gui:
         self.fichier.supprimerEntreeBoite(nomEntree, self.cle)
         self.listeNom.delete(self.listeNom.curselection())
         self.fenBoite.focus_set()
+
+    def fenGenerator(self):
+        self.fenGen = Toplevel()
+        self.fenGen.title("ZenPassword Generator")
+
+        self.pass_generated = StringVar()
+        self.pass_generated.set("Click generate")
+
+        entree = Entry(self.fenGen, textvariable=self.pass_generated, width=30)
+        entree.pack()
+
+        lenght = Spinbox(self.fenGen, from_=1, to=8)
+        lenght.pack()
+
+        var_lowerCase = IntVar()
+        var_lowerCase.set(2)
+        lowerCase = Checkbutton(self.fenGen, text="Lower case", variable=var_lowerCase)
+        lowerCase.pack()
+
+        var_upperCase = IntVar()
+        upperCase = Checkbutton(self.fenGen, text="Upper case", variable=var_upperCase)
+        upperCase.pack()
+
+        var_digits = IntVar()
+        digits = Checkbutton(self.fenGen, text="Digits", variable=var_digits)
+        digits.pack()
+
+        var_special = IntVar()
+        special = Checkbutton(self.fenGen, text="Special", variable=var_special)
+        special.pack()
+
+        var_space = IntVar()
+        space = Checkbutton(self.fenGen, text="Space", variable=var_space)
+        space.pack()
+
+
+        bGenerate = Button(self.fenGen, text="Generate",
+        command=lambda:self.generator(
+        var_lowerCase.get(),
+        var_upperCase.get(),
+        var_digits.get(),
+        var_special.get(),
+        var_space.get(),
+        int(lenght.get())))
+
+        bGenerate.pack()
+
+        bCopy = Button(self.fenGen, text="OK", command=self.setPasswordGenerated)
+        bCopy.pack()
+
+        self.fenGen.mainloop()
+        return delPassGenerated()
+
+    def setPasswordGenerated(self):
+        self.entreeMdp.set(self.pass_generated.get())
+        self.fenGen.destroy()
+        del self.pass_generated
+        self.fenAjout.focus()
+        return
+    def generator(self, lowercase, uppercase, digits, special, space, lenght):
+        self.pass_generated.set(passgen.gen(lowercase, uppercase, digits, special, space, lenght))
 
     def fermerBoite(self):
         """Fonction permettant de fermer correctement une boîte en effaçant toutes

@@ -1,5 +1,5 @@
 import sqlite3
-import zp_security as zps
+from zp import security as zps
 
 class bddFile:
     def __init__(self, chemin, isNew=False, nom="", hashmdp=""):

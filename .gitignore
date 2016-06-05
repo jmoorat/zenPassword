@@ -1,3 +1,5 @@
 /test
 /psd
 /__pycache__
+zp/__pycache__
+zp/pyperclip/__pycache__
