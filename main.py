@@ -7,7 +7,7 @@ import os
 #Importation modules persos
 from zp.db import *
 from zp.security import *
-import zp.clipboard as clipboard
+import zp.pyperclip as clipboard
 import zp.generator as passgen
 
 version = "v0.3a"
@@ -297,6 +297,9 @@ class gui:
         labelGetMdp = Label(self.fenEntree, text=self.fichier.getMdp(nomEntree, self.cle))
         labelGetNote = Label(self.fenEntree, text=self.fichier.getNote(nomEntree, self.cle))
 
+        buttonCopyId = Button(self.fenEntree, text="Copy login", command=lambda:clipboard.copy(str(self.fichier.getId(nomEntree, self.cle))))
+        buttonCopyMdp = Button(self.fenEntree, text="Copy password", command=lambda:clipboard.copy(str(self.fichier.getMdp(nomEntree, self.cle))))
+
         #Positionnement des éléments
         labelId.pack()
         labelGetId.pack()
@@ -304,6 +307,9 @@ class gui:
         labelGetMdp.pack()
         labelNote.pack()
         labelGetNote.pack()
+        buttonCopyId.pack()
+        buttonCopyMdp.pack()
+        return
 
     def supprEntree(self, nomEntree):
         self.fichier.supprimerEntreeBoite(nomEntree, self.cle)
