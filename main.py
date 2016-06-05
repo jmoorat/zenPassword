@@ -19,13 +19,13 @@ class gui:
         self.main['bg']="white"
 
         menu = Menu(self.main)
-        menu.add_command(label="Créer", command=self.fenCreationBoite)
-        menu.add_command(label="Ouvrir", command=self.browse)
+        menu.add_command(label="Create", command=self.fenCreationBoite)
+        menu.add_command(label="Open", command=self.browse)
         self.main.config(menu=menu)
 
         buttonCreer = Button(
             self.main,
-            text="Créer une boîte",
+            text="Create a database",
             command=self.fenCreationBoite,
             background="#60bb87",
             foreground="white",
@@ -35,7 +35,7 @@ class gui:
             width="16")
         buttonOuvrir = Button(
             self.main,
-            text="Ouvrir une boîte",
+            text="Open a database",
             command=self.browse,
             background="#60bb87",
             foreground="white",
@@ -57,7 +57,7 @@ class gui:
     def browse(self):
         """Ouvre une fenêtre permettant de sélectionner le chemin du fichier à ouvrir"""
         self.chemin = ""
-        self.chemin = askopenfilename(title="Ouvrir une boîte",filetypes=[('Fichiers ZenPassword','.zpdb'),('Tous les fichiers','.*')])
+        self.chemin = askopenfilename(title="Open a database",filetypes=[('ZenPassword files','.zpdb'),('All files','.*')])
         if self.chemin == "":
             return
         else:
@@ -69,15 +69,15 @@ class gui:
 
         #Elements de la fenêtre
         self.fenUnlock = Toplevel()
-        self.fenUnlock.title("Déverrouillage")
+        self.fenUnlock.title("Unlock database")
         self.fenUnlock.geometry("300x128")
         cadenas = PhotoImage(file="img/cadenas_64.png")
         labelCadenas = Label(self.fenUnlock, image=cadenas)
         mdp = StringVar()
-        labelMdp = Label(self.fenUnlock, text="Mot de passe")
+        labelMdp = Label(self.fenUnlock, text="Main password")
         champMdp = Entry(self.fenUnlock, textvariable=mdp, show="●") #show="●" va permettre de masquer ce qu'écrit l'utilisateur
         champMdp.focus_set()
-        buttonValider = Button(self.fenUnlock, text="Valider", command=lambda:self.verifMdp(mdp.get()))
+        buttonValider = Button(self.fenUnlock, text="Ok", command=lambda:self.verifMdp(mdp.get()))
 
         #Positionnement des éléments de la fenêtre
         labelCadenas.pack()
@@ -100,7 +100,7 @@ class gui:
             self.fenUnlock.destroy()
             return self.boite()
         else: #Erreur > on ouvre pas la boite
-            self.alerte = showerror("Mot de passe incorrect", "Accès refusé")
+            self.alerte = showerror("Wrong password", "Access refused")
             return
 
     def fenCreationBoite(self):
@@ -108,20 +108,20 @@ class gui:
 
         #Elements de la fenêtre
         self.fenCreationBoite = Toplevel()
-        self.fenCreationBoite.title("Créer une boîte")
+        self.fenCreationBoite.title("Create a database")
         self.fenCreationBoite.geometry("220x200")
         nomBoite = StringVar()
         mdpBoite = StringVar()
         cheminBoite = StringVar()
-        labelNom = Label(self.fenCreationBoite, text="Nom de la boîte : ")
-        labelMdp = Label(self.fenCreationBoite, text="Mot de passe principal : ")
-        labelChemin = Label(self.fenCreationBoite, text="Chemin vers le fichier : ")
+        labelNom = Label(self.fenCreationBoite, text="Name : ")
+        labelMdp = Label(self.fenCreationBoite, text="Main password : ")
+        labelChemin = Label(self.fenCreationBoite, text="Path to your file : ")
         entryNom = Entry(self.fenCreationBoite, textvariable=nomBoite)
         entryMdp = Entry(self.fenCreationBoite, textvariable=mdpBoite, show="●")
         entryChemin = Entry(self.fenCreationBoite, textvariable=cheminBoite)
-        buttonChemin = Button(self.fenCreationBoite, text="Parcourir ...", command=lambda:cheminBoite.set(askdirectory()))
-        buttonValider = Button(self.fenCreationBoite, text="Valider", command=lambda:self.verifCreationBoite(nomBoite.get(), mdpBoite.get(), cheminBoite.get()))
-        buttonQuitter = Button(self.fenCreationBoite, text="Quitter", command=self.fenCreationBoite.destroy)
+        buttonChemin = Button(self.fenCreationBoite, text="Explore", command=lambda:cheminBoite.set(askdirectory()))
+        buttonValider = Button(self.fenCreationBoite, text="Ok", command=lambda:self.verifCreationBoite(nomBoite.get(), mdpBoite.get(), cheminBoite.get()))
+        buttonQuitter = Button(self.fenCreationBoite, text="Quit", command=self.fenCreationBoite.destroy)
 
         #Positionnement des éléments
         labelNom.pack(pady=1)
@@ -139,26 +139,26 @@ class gui:
     def verifCreationBoite(self, nomBoite, mdpBoite, cheminBoite):
         """Fonction vérifiant les données rentrées dans fenCreationBoite avant création d'une boîte"""
         if nomBoite == "":
-            alerte = showwarning("Aucun nom spécifié", "Veuillez spécifier un nom pour votre fichier")
+            alerte = showwarning("No name specified", "Please set a name for your file")
             return
         elif len(mdpBoite) < 8:
-            alerte = showwarning("Mot de passe trop court", "Votre mot de passe doit faire plus de 8 caractères")
+            alerte = showwarning("Main password too short", "Your main password must be 8 characters long")
             return
         elif os.path.isfile(cheminBoite+"/"+nomBoite+".spdb") == True:
-            alerte = showerror("Erreur", "Un fichier portant le même nom existe déjà")
+            alerte = showerror("Error", "A file with the same name already exist !")
             return
         elif cheminBoite == "":
-            error = showerror("Aucun chemin spécifié", "Aucun chemin n'a été spécifié")
+            error = showerror("No path specified", "Please choose a path for your file")
 
         else:
-            question = askquestion("Confirmation", "Etes-vous sûr de créer la boîte \"" + nomBoite +
-            "\" dans "+cheminBoite+" ?")
+            question = askquestion("Confirmation", "Database \"" + nomBoite +
+            "\" will be created in "+cheminBoite)
 
             if question == "yes":
                 fichier = bddFile(cheminBoite, True, nomBoite, zps.sha256(mdpBoite))
                 mdpBoite = None
                 del mdpBoite, nomBoite, cheminBoite, fichier
-                info = showinfo("Boîte créée", "La boîte a bien été créée")
+                info = showinfo("Database created", "Operation successful")
                 self.fenCreationBoite.destroy()
                 return
             else:
@@ -181,18 +181,18 @@ class gui:
             i += 1
         self.listeNom.select_set(0) #On sélectionne par défaut la première entrée de la liste
 
-        buttonVoir = Button(self.fenBoite, text="Voir l'entrée", command=lambda:self.afficheEntree(self.listeNom.get(self.listeNom.curselection()[0])))
-        buttonFermerBoite = Button(self.fenBoite, text="Fermer la boîte", command=self.fermerBoite)
+        buttonVoir = Button(self.fenBoite, text="Display entry", command=lambda:self.afficheEntree(self.listeNom.get(self.listeNom.curselection()[0])))
+        buttonFermerBoite = Button(self.fenBoite, text="Close database", command=self.fermerBoite)
 
         #Définition du menu
         menuBoite = Menu(self.fenBoite)
         menuEntrees = Menu(menuBoite, tearoff=0)
-        menuEntrees.add_command(label="Voir l'entrée sélectionnée", command=lambda:self.afficheEntree(self.listeNom.get(self.listeNom.curselection()[0])))
-        menuEntrees.add_command(label="Ajouter une entrée", command=self.fenAjoutEntreeBoite)
-        menuEntrees.add_command(label="Modifier une entrée", command=lambda:self.fenModifEntreeBoite(self.listeNom.get(self.listeNom.curselection()[0])))
-        menuEntrees.add_command(label="Supprimer l'entrée sélectionnée", command=lambda:self.supprEntree(self.listeNom.get(self.listeNom.curselection()[0])))
-        menuBoite.add_cascade(label="Entrées", menu=menuEntrees)
-        menuBoite.add_command(label="Fermer la boîte", command=self.fermerBoite)
+        menuEntrees.add_command(label="Display selected entry", command=lambda:self.afficheEntree(self.listeNom.get(self.listeNom.curselection()[0])))
+        menuEntrees.add_command(label="Add an entry", command=self.fenAjoutEntreeBoite)
+        menuEntrees.add_command(label="Edit selected entry", command=lambda:self.fenModifEntreeBoite(self.listeNom.get(self.listeNom.curselection()[0])))
+        menuEntrees.add_command(label="Delete selected entry", command=lambda:self.supprEntree(self.listeNom.get(self.listeNom.curselection()[0])))
+        menuBoite.add_cascade(label="Entries", menu=menuEntrees)
+        menuBoite.add_command(label="Close database", command=self.fermerBoite)
         self.fenBoite.config(menu=menuBoite)
         #listeNom.get(listeNom.curselection()[0]) permet de récupérer le contenu de l'élément de la liste sélectionné
 
@@ -209,21 +209,21 @@ class gui:
 
         #Définition de la fenêtre et ses éléments
         self.fenAjout = Toplevel()
-        self.fenAjout.title("Ajouter une entrée")
+        self.fenAjout.title("Add an entry")
         entreeNom = StringVar()
         entreeId = StringVar()
         self.entreeMdp = StringVar() #self pour accès depuis le générateur
         entreeNote = StringVar()
 
-        labelNom = Label(self.fenAjout, text="Nom de l'entrée : ")
-        labelId = Label(self.fenAjout, text="Identifiant : ")
-        labelMdp = Label(self.fenAjout, text="Mot de passe : ")
-        labelNote = Label(self.fenAjout, text="Note/Commentaire : ")
+        labelNom = Label(self.fenAjout, text="Name : ")
+        labelId = Label(self.fenAjout, text="Login : ")
+        labelMdp = Label(self.fenAjout, text="Password : ")
+        labelNote = Label(self.fenAjout, text="Comment : ")
         entryNom = Entry(self.fenAjout, textvariable=entreeNom)
         entryId = Entry(self.fenAjout, textvariable=entreeId)
         entryMdp = Entry(self.fenAjout, textvariable=self.entreeMdp)
         entryNote = Entry(self.fenAjout, textvariable=entreeNote)
-        buttonValider = Button(self.fenAjout, text="Valider", command=lambda:self.verifAjoutEntreeBoite(entreeNom.get(), entreeId.get(), self.entreeMdp.get(), entreeNote.get()))
+        buttonValider = Button(self.fenAjout, text="Ok", command=lambda:self.verifAjoutEntreeBoite(entreeNom.get(), entreeId.get(), self.entreeMdp.get(), entreeNote.get()))
         buttonGenerer = Button(self.fenAjout, text="Password generator", command=self.fenGenerator)
 
         #Positionnement des éléments
@@ -253,16 +253,16 @@ class gui:
         entreeMdp.set(self.fichier.getMdp(nomEntree, self.cle))
         entreeNote.set(self.fichier.getNote(nomEntree, self.cle))
 
-        labelId = Label(self.fenModif, text="Identifiant : ")
-        labelMdp = Label(self.fenModif, text="Mot de passe : ")
-        labelNote = Label(self.fenModif, text="Note : ")
+        labelId = Label(self.fenModif, text="Login : ")
+        labelMdp = Label(self.fenModif, text="Password : ")
+        labelNote = Label(self.fenModif, text="Comment : ")
 
         entryId = Entry(self.fenModif, textvariable=entreeId)
         entryMdp = Entry(self.fenModif, textvariable=entreeMdp)
         entryNote = Entry(self.fenModif, textvariable=entreeNote)
 
-        buttonValider = Button(self.fenModif, text="Valider", command=lambda:self.verifModifEntreeBoite(nomEntree, entreeId.get(), entreeMdp.get(), entreeNote.get()))
-        buttonAnnuler = Button(self.fenModif, text="Annuler", command=self.fenModif.destroy)
+        buttonValider = Button(self.fenModif, text="Ok", command=lambda:self.verifModifEntreeBoite(nomEntree, entreeId.get(), entreeMdp.get(), entreeNote.get()))
+        buttonAnnuler = Button(self.fenModif, text="Cancel", command=self.fenModif.destroy)
 
         #Positionnement des éléments
         labelId.pack(side=LEFT, pady=1, padx=2)
@@ -284,9 +284,9 @@ class gui:
         self.fenEntree = Toplevel()
         self.fenEntree.title(nomEntree)
         self.fenEntree.geometry("200x250")
-        labelId = Label(self.fenEntree, text="Identifiant : ")
-        labelMdp = Label(self.fenEntree, text="Mot de passe : ")
-        labelNote = Label(self.fenEntree, text="Note : ")
+        labelId = Label(self.fenEntree, text="Login : ")
+        labelMdp = Label(self.fenEntree, text="Password : ")
+        labelNote = Label(self.fenEntree, text="Comment : ")
 
         labelGetId = Label(self.fenEntree, text=self.fichier.getId(nomEntree, self.cle))
         labelGetMdp = Label(self.fenEntree, text=self.fichier.getMdp(nomEntree, self.cle))
@@ -310,7 +310,6 @@ class gui:
         self.fenGen.title("ZenPassword Generator")
 
         self.pass_generated = StringVar()
-        self.pass_generated.set("Click generate")
 
         entree = Entry(self.fenGen, textvariable=self.pass_generated, width=30)
         entree.pack()
@@ -379,7 +378,7 @@ class gui:
         #accès à listeNom définie en globale dans boite pour l'ajout automatique de la nouvelle entrée
 
         if nom == "":
-            error = showerror("Erreur", "Vous devez spécifier un nom pour l'entrée")
+            error = showerror("Error", "Please specifiy a name for your entry")
             self.fenBoite.focus_set() #garde la fenêtre boite au dessus des autres
             return
         elif self.fichier.ajouterEntreeBoite(nom, identifiant, mdp, note, self.cle) == True:
@@ -393,7 +392,7 @@ class gui:
         """Vérification de la modification d'une boite"""
 
         if self.fichier.modifEntreeBoite(nom, identifiant, mdp, note, self.cle) == True:
-            info = showinfo("Entrée modifiée", "L'entrée a bien été modifiée.")
+            info = showinfo("Entry changed", "Entry successfully changed")
             self.fenModif.destroy()
             del self.fenModif, nom, identifiant, mdp, note
             self.fenBoite.focus_set() #garde la fenêtre boite au dessus des autres

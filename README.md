@@ -1,25 +1,38 @@
-# Présentation
-ZenPassword permet la création d'un espace chiffré (appelé "boîte") et sécurisé par un mot de passe principal pour y entreposer tous ses mots de passes !
+# Presentation
+ZenPassword allows you to create an encrypted database where you can store your logins and passwords. This database is protected by a main password only known by you. It is used as the encryption key for the moment.
 
-Ce pogramme est développé dans un cadre éducatif et n'utilise pas (encore) de technologies de chiffrement avancées comme AES.
-Actuellement, le contenu des boîtes est chiffré avec la technique du chiffre de Vigenère utilisant une clé SHA-512 généré d'après le mot de passe de la boîte.
+This application is developed for an educative purpose only, it doesn't use advanced algorithms such as AES to encrypt your data. For a consequence, I won't be responsible of loss of data or other damage.
+Content of the databases are currently encrypted thanks to a simple algorithm based on Vigenere encryption.
 
-# Fonctionnement relatif aux boîtes
-## Création d'une boîte
-En créant une boîte, vous devrez lui donner une nom et lui assigner un mot de passe principal.
-Ce mot de passe devra être long d'au moins 8 caractères afin d'assurer une sécurité minimale au futur contenu.
-Le programme créera ensuite votre boîte qui sera stockée dans un fichier .zpdb dans son répertoire.
+# How to
+## Create a database
+To create a new database, click on "Create a database". Then set a name to your future file and a main password. Your main password must contains at least 8 characters to be secured. This password will be stored nowhere, so be careful not to forget it !
+To continue, you will specify a path where the file will be stored.
+Press "Ok" and the database should create herself without any problems.
+ZenPassword files use the .zpdb extension.
 
-## Ouvrir une boîte
-Pour ouvrir une boîte. Cliquez sur "Ouvrir une boîte" dans le menu principal et sélectionnez la boîte à ouvrir puis tappez votre mot de passe pour accéder à son contenu.
+The database is composed of two tables :
+* Hash : it contains the hash value (signature) of your password (not your password).
+* Boite : it contains all the encrypted entries
 
-## Supprimer une boîte
-La suppression d'une boite ne s'effectue pas depuis le logiciel.
+## Open a database
+To open a database click "Open a database" and explore your disk to your .zpdb file. Then a password will be required to unlock it. Enter your password and press "Ok" to access the content.
 
-# Gestion du contenu d'une boîte
+## Close a database
+To close properly your database, you must click "Close database". Using the operating system buttons can have unwanted effects on how your data are cleaned (not verified yet).
+## Delete a database
+To avoid loss of data into the application, you can't delete a database with it. Whereas, it's still possible to delete it within the operating system explorer, so be careful and backup !
 
-## Fonctionnement des entrées
-Chaque entrée comprend un nom (inchangeable pour le moment), un identifiant, un mot de passe et une note. Lors de la création d'une entrée chacun des champs est chiffré grâce à votre mot de passe puis stocké dans la boîte.
+## Managing your entries
+Each entry contains several fields :
+* A name (not editable yet)
+* A login
+* A password
+* A comment (in case of need)
 
-## Attention
-Votre boîte étant stocké sur votre disque dur, elle peut tout à fait être supprimé. Prenez garde !
+You can create, edit, and delete entries thanks to the top menubar. You can display content of each entry by clicking "Display entry".
+
+When creating an entry, fields are encrypted thanks to your password and then stored into the database.
+
+## Important informations
+* The database structure is not encrypted yet. As a consequence, it is still accessible through database browser, but the content is unreadable.
