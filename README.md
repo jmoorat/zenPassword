@@ -4,7 +4,7 @@
 # Presentation
 ZenPassword allows you to create an encrypted database where you can store your logins and passwords. This database is protected by a main password only known by you. It is used as the encryption key for the moment.
 
-This application is developed for an educative purpose only, it doesn't use advanced algorithms such as AES to encrypt your data. For a consequence, I won't be responsible of loss of data or other damage.
+This application is developed for an educative purpose only, it doesn't use advanced algorithms such as AES to encrypt your data. As a consequence, I won't be responsible of loss of data or other damage.
 Content of the databases are currently encrypted thanks to a simple algorithm based on Vigenere encryption.
 
 # How to
