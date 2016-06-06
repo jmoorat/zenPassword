@@ -120,7 +120,7 @@ class gui:
         entryNom = Entry(self.fenCreation, textvariable=nomBoite)
         entryMdp = Entry(self.fenCreation, textvariable=mdpBoite, show="●")
         entryChemin = Entry(self.fenCreation, textvariable=cheminBoite)
-        buttonChemin = Button(self.fenCreation, text="Explore", command=lambda:cheminBoite.set(askdirectory()))
+        buttonChemin = Button(self.fenCreation, text="Explore", command=lambda:cheminBoite.set(self.setFileDirectory()))
         buttonValider = Button(self.fenCreation, text="Ok", command=lambda:self.verifCreationBoite(nomBoite.get(), mdpBoite.get(), cheminBoite.get()))
         buttonQuitter = Button(self.fenCreation, text="Quit", command=self.fenCreation.destroy)
 
@@ -135,7 +135,13 @@ class gui:
         buttonValider.pack(side=LEFT, pady=5, padx=5)
         buttonQuitter.pack(side=RIGHT, pady=5, padx=5)
 
-        self.fenCreationBoite.mainloop()
+        self.fenCreation.mainloop()
+
+    def setFileDirectory(self):
+        """for CreationBoite -> call askdirectory and then fenCreation.focus() that allows our window to stay on top"""
+        directory = askdirectory()
+        self.fenCreation.focus()
+        return directory
 
     def verifCreationBoite(self, nomBoite, mdpBoite, cheminBoite):
         """Fonction vérifiant les données rentrées dans fenCreationBoite avant création d'une boîte"""
@@ -164,7 +170,7 @@ class gui:
                 mdpBoite = None
                 del mdpBoite, nomBoite, cheminBoite, fichier
                 showinfo("Database created", "Operation successful")
-                self.fenCreationBoite.destroy()
+                self.fenCreation.destroy()
                 return
             else:
                 return
@@ -297,8 +303,8 @@ class gui:
         labelGetMdp = Label(self.fenEntree, text=self.fichier.getMdp(nomEntree, self.cle))
         labelGetNote = Label(self.fenEntree, text=self.fichier.getNote(nomEntree, self.cle))
 
-        buttonCopyId = Button(self.fenEntree, text="Copy login", command=lambda:clipboard.copy(str(self.fichier.getId(nomEntree, self.cle))))
-        buttonCopyMdp = Button(self.fenEntree, text="Copy password", command=lambda:clipboard.copy(str(self.fichier.getMdp(nomEntree, self.cle))))
+        buttonCopyId = Button(self.fenEntree, text="Copy login", command=lambda:self.secureCopy("login", nomEntree))
+        buttonCopyMdp = Button(self.fenEntree, text="Copy password", command=lambda:self.secureCopy("password", nomEntree))
 
         #Positionnement des éléments
         labelId.pack()
@@ -310,6 +316,16 @@ class gui:
         buttonCopyId.pack()
         buttonCopyMdp.pack()
         return
+
+    def secureCopy(self, field, nomEntree):
+        if field == "login":
+            clipboard.copy(str(self.fichier.getId(nomEntree, self.cle)))
+            self.main.after(10000, lambda:clipboard.copy("")) #Clean the clipboard after 10 seconds
+        elif field == "password":
+            clipboard.copy(str(self.fichier.getMdp(nomEntree, self.cle)))
+            self.main.after(10000, lambda:clipboard.copy("")) #Clean the clipboard after 10 seconds
+        else:
+            showerror("Security error", "incorrect copy request")
 
     def supprEntree(self, nomEntree):
         self.fichier.supprimerEntreeBoite(nomEntree, self.cle)
