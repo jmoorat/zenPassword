@@ -1,3 +1,6 @@
+![zenPassword Logo](/img/logo_96.png)
+Format: ![Alt Text](url)
+
 # Presentation
 ZenPassword allows you to create an encrypted database where you can store your logins and passwords. This database is protected by a main password only known by you. It is used as the encryption key for the moment.
 
